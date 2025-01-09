@@ -9,14 +9,15 @@ import product.domain.valueobject.ProductPrice
 import product.domain.valueobject.ProductStockQuantity
 import product.infrastructure.controller.dto.request.UpdateProductRequest
 import product.infrastructure.controller.dto.response.ProductResponse
+import shared.domain.bus.event.EventBus
 import java.util.*
 
 class UpdateProductUseCase(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val eventBus: EventBus
 ) {
     fun execute(productId: UUID, request: UpdateProductRequest): ProductResponse {
-        productRepository.findByNameExcludingId(ProductId(productId), ProductName(request.name))
-            ?: throw ProductNameAlreadyExistsException(request.name)
+        assertProductNameDoesNotExist(productId, request.name)
 
         val product = productRepository.findById(ProductId(productId)) ?: throw ProductNotFoundException(productId)
 
@@ -28,6 +29,17 @@ class UpdateProductUseCase(
 
         productRepository.save(updatedProduct)
 
+        eventBus.publish(*product.retrieveAndFlushDomainEvents().toTypedArray())
+
         return ProductResponse.from(updatedProduct)
+    }
+
+    private fun assertProductNameDoesNotExist(
+        productId: UUID,
+        productName: String
+    ) {
+        if (productRepository.findByNameExcludingId(ProductId(productId), ProductName(productName)) != null) {
+            throw ProductNameAlreadyExistsException(productName)
+        }
     }
 }

@@ -5,14 +5,15 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import product.domain.`interface`.ProductRepository
-import product.infrastructure.controller.dto.request.CreateProductRequest
 import kotlinx.coroutines.runBlocking
+import product.domain.`interface`.ProductRepository
 import product.domain.valueobject.ProductId
-import java.util.UUID
+import shared.domain.bus.event.EventBus
+import java.util.*
 
 class BulkArchiveProductsUseCase(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val eventBus: EventBus
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun execute(productIds: List<UUID>) {
@@ -23,11 +24,15 @@ class BulkArchiveProductsUseCase(
                 .collect {
                     try {
                         val product = productRepository.findById(ProductId(it))
-                        product?.archive()?.let { p -> productRepository.save(p) }
+                        product?.archive()?.let { p ->
+                            productRepository.save(p)
+                            eventBus.publish(*product.retrieveAndFlushDomainEvents().toTypedArray())
+                        }
                     } catch (e: Exception) {
                         println("Error archiving product $it: ${e.message}")
                     }
                 }
+
         }
     }
 }

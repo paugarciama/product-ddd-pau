@@ -15,7 +15,7 @@ class CreateProductUseCase(
     private val eventBus: EventBus
 ) {
     fun execute(request: CreateProductRequest): ProductResponse {
-        productRepository.findByName(ProductName(request.name)) ?: throw ProductNameAlreadyExistsException(request.name)
+        assertProductNameDoesNotExist(request.name)
 
         val product = Product.create(
             ProductName(request.name),
@@ -25,8 +25,14 @@ class CreateProductUseCase(
 
         productRepository.save(product)
 
-        eventBus.publish(product.retrieveAndFlushDomainEvents())
+        eventBus.publish(*product.retrieveAndFlushDomainEvents().toTypedArray())
 
         return ProductResponse.from(product)
+    }
+
+    private fun assertProductNameDoesNotExist(productName: String) {
+        if (productRepository.findByName(ProductName(productName)) != null) {
+            throw ProductNameAlreadyExistsException(productName)
+        }
     }
 }

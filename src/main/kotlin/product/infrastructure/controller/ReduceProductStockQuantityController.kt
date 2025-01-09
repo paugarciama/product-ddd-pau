@@ -1,11 +1,11 @@
 package product.infrastructure.controller
 
-import product.application.ReduceProductStockQuantityUseCase
-import product.infrastructure.controller.dto.request.ReduceStockQuantityRequest
-import product.infrastructure.controller.dto.response.ProductResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import product.application.ReduceProductStockQuantityUseCase
+import product.infrastructure.controller.dto.request.ReduceStockQuantityRequest
+import product.infrastructure.controller.dto.response.ProductResponse
 import java.util.*
 
 @RestController
@@ -18,7 +18,12 @@ class ReduceProductStockQuantityController(
         @PathVariable id: UUID,
         @RequestBody request: ReduceStockQuantityRequest
     ): ResponseEntity<ProductResponse> {
-        val product = useCase.execute(id, request)
-        return ResponseEntity.status(HttpStatus.OK).body(product)
+        try {
+            val product = useCase.execute(id, request)
+            return ResponseEntity.status(HttpStatus.OK).body(product)
+        } catch (ex: Exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+        // more exception detail depending on the exception that comes from the useCase
     }
 }
