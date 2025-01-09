@@ -22,6 +22,5 @@ class BulkArchiveProductsController(
         } catch (ex: Exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
-        // more exception detail depending on the exception that comes from the useCase
     }
 }

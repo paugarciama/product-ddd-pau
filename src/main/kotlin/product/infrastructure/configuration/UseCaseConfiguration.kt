@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import product.application.*
 import product.domain.`interface`.ProductRepository
-import product.infrastructure.repository.ProductRepositoryInMemory
 import shared.domain.bus.event.EventBus
 
 @Configuration

@@ -1,5 +1,5 @@
 services:
-  placeholder:
+  product-ddd-pau:
     image: alpine
     command: ["tail", "-f", "/dev/null"]
 
