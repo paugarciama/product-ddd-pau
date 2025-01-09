@@ -1,1 +1,10 @@
 services:
+  placeholder:
+    image: alpine
+    command: ["tail", "-f", "/dev/null"]
+
+networks:
+  mynetwork:
+
+volumes:
+  mydata:

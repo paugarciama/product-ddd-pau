@@ -8,12 +8,8 @@ abstract class AggregateRoot {
     fun notifyDomainEvent(domainEvent: DomainEvent) = domainEvents.add(domainEvent)
 
     fun retrieveAndFlushDomainEvents(): List<DomainEvent> {
-        val events = domainEvents()
-        this.resetDomainEvents()
+        val events = domainEvents.toList()
+        this.domainEvents.clear()
         return events
     }
-
-    private fun domainEvents(): List<DomainEvent> = domainEvents
-
-    private fun resetDomainEvents() = domainEvents.clear()
 }
